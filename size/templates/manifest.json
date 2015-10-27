@@ -1,0 +1,20 @@
+{
+    "version": "1.0",
+
+    "title": "<%= width %> x <%= height %> <%= name %> HTML", 
+    "description": "<%= name %>",  
+
+    "width" : "<%= width %>", 
+    "height": "<%= height %>", 
+
+    "events": {
+        "enabled": 0, 
+        "list": { }
+    },
+
+    "clicktags": {
+        "clickTAG": "<%= clickTag %>"
+    },
+
+    "source": "index.html"
+}

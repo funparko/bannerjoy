@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<meta charset="utf-8"/>
+		<title><%= name %> <%= size %></title>
+
+        <!-- build:css styles/main.css -->
+		<link rel="stylesheet" href="styles/main.css" />
+        <!-- endbuild -->
+		
+		<% if (includeAdForm) { %>
+		<script>document.write('<script src="'+ (window.API_URL || 'https://s1.adform.net/banners/scripts/rmb/Adform.DHTML.js?bv='+ Math.random()) +'"><\/script>');</script>
+		<% } %>
+
+    </head>
+  	<body>	
+        <div id="banner">
+        	
+        </div>
+
+        <!-- build:js scripts/main.js -->
+        <script src="scripts/main.js"></script>
+        <!-- endbuild --> 
+
+    	<% if (includeAdForm) { %>
+        <!-- AdForm -->
+        <script>
+            var banner = document.getElementById('banner');
+            clickTAGvalue = dhtml.getVar('clickTAG', '<%= clickTag %>'); 
+            landingpagetarget = dhtml.getVar('landingPageTarget', '_blank');
+            banner.onclick = function() {
+               window.open(clickTAGvalue,landingpagetarget);
+            }	
+        </script>
+        <% } %>
+	</body>
+</html>
