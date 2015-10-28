@@ -20,8 +20,14 @@ function puts(error, stdout, stderr) {
 	// console.log(stdout) 
 }
 
+function onError(error, stdout, stderr) { 
+	console.error(error) 
+	// console.log('---') 
+	console.log(stdout) 
+}
 
-gulp.task('clean', del.bind(null, [tmpDir, distDir]));
+
+gulp.task('clean', del.bind(null, [tmpDir, distDir, deliveryDir]));
 
 
 gulp.task('default', ['clean'], function() {
@@ -35,6 +41,17 @@ gulp.task('default', ['clean'], function() {
 	        // console.log(distDir + ' exists');
 	    } else if(err.code == 'ENOENT') {
 	        fs.mkdir('./' + distDir);
+	    } else {
+	        console.log('Some other error: ', err.code);
+	    }
+	});
+	
+	var deliveryPath = './' + deliveryDir;
+	fs.stat(deliveryPath, function(err, stats) {
+		if(err == null) {
+	        // console.log(distDir + ' exists');
+	    } else if(err.code == 'ENOENT') {
+	        fs.mkdir('./' + deliveryDir);
 	    } else {
 	        console.log('Some other error: ', err.code);
 	    }
@@ -71,7 +88,7 @@ gulp.task('images', function() {
 				console.log(err);
 				this.end();
 			})))
-			.pipe(gulp.dest(tmpDir + '/' + sizes[i] + '/images'));
+			.pipe(gulp.dest(distDir + '/' + sizes[i] + '/images'));
 
 		streams.push(stream);
 	}
@@ -84,6 +101,9 @@ gulp.task('styles', function() {
 
 	for (var i = 0; i < sizes.length; i++) {
 		var stream = gulp.src(sizes[i] + '/styles/*.css')
+			.pipe($.plumber({
+	            errorHandler: onError
+	        }))
 		    // .pipe($.sourcemaps.init())
 		    .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
 		    // .pipe($.sourcemaps.write())
@@ -99,7 +119,7 @@ gulp.task('html', ['styles'], function() {
 	var streams = [];
 
 	for (var i = 0; i < sizes.length; i++) {
-		var assets = $.useref.assets({searchPath: ['.tmp', sizes[i], '.']});
+		var assets = $.useref.assets({searchPath: [tmpDir + '/' + sizes[i], sizes[i], '.']});
 		stream = gulp.src(sizes[i] + '/*.html')
 			.pipe(assets)
 			.pipe($.if('*.js', $.uglify()))
@@ -107,13 +127,14 @@ gulp.task('html', ['styles'], function() {
 			.pipe(assets.restore())
 			.pipe($.useref())
 			.pipe($.if('*.html', $.minifyHtml({conditionals: true, loose: true})))
-			.pipe(gulp.dest(tmpDir + '/' + sizes[i]));
+			.pipe(gulp.dest(distDir + '/' + sizes[i]));
 		
 		streams.push(stream);
 	}
 	return es.concat(streams);
 
 });
+
 
 gulp.task('extras', function() {
 	var streams = [];
@@ -124,7 +145,7 @@ gulp.task('extras', function() {
 			'!' + sizes[i] + '/*.html'
 		], {
 			dot: true
-		}).pipe(gulp.dest(tmpDir + '/' + sizes[i]));
+		}).pipe(gulp.dest(distDir + '/' + sizes[i]));
 
 		streams.push(stream);
 	}
@@ -135,10 +156,10 @@ gulp.task('extras', function() {
 gulp.task('dist', ['images', 'html', 'extras'], function() {
     for (var i = 0; i < sizes.length; i++) {
     	var src = sizes[i];
-    	var dest = distDir + '/' + sizes[i] + '.zip';
+    	var dest = deliveryDir + '/' + sizes[i] + '.zip';
         var cmd = [
         	'cd',
-        	tmpDir,
+        	distDir,
         	'&&',
         	'zip', 
         	'-r', __dirname + '/' + dest, 

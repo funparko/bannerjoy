@@ -12,7 +12,7 @@ Start by installing [Node.js](https://nodejs.org/) if you don't already have tha
 
 `npm install -g gulp`
 
-### ÅH-Banner Tool
+### BannerJoy
 
 `npm install -g generator-bannerjoy`
 
