@@ -2,9 +2,10 @@
   "name": "generator-bannerjoy",
   "license": "MIT",
   "version": "0.2.0",
-  "description": "Banner tools for faster banner creation.",
+  "description": "Yeoman generator",
   "main": "app/index.js",
   "repository": "funparko/bannerjoy",
+  "author": "Karl Peterz <karl.peterz@gmail.com> (https://github.com/funparko)",
   "files": [
     "app"
   ],
@@ -16,9 +17,7 @@
     "url": "https://github.com/funparko"
   },
   "keywords": [
-    "yeoman-generator",
-    "banner",
-    "adform"
+    "yeoman-generator"
   ],
   "dependencies": {
     "mkdirp": "^0.5.1",
