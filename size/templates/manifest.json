@@ -1,8 +1,8 @@
 {
     "version": "1.0",
 
-    "title": "<%= width %> x <%= height %> <%= name %> HTML", 
-    "description": "<%= name %>",  
+    "title": "<%= width %>x<%= height %> <%= name %> HTML", 
+    "description": "<%= network %>",  
 
     "width" : "<%= width %>", 
     "height": "<%= height %>", 

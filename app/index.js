@@ -8,11 +8,18 @@ module.exports = generators.Base.extend({
 			type: String, 
 			optional : true, 
 			required : false,
-			defaults : this.name
+			defaults : this.appname
 		});
 		// And you can then access it later on this way; e.g. CamelCased
-		this.log(this.name);
+		// this.log(this.appname);
   	},
+
+	
+	initializing: function () {
+		this.pkg = require('../package.json');
+	},
+
+
   	prompting: function () {
 		var done = this.async();
 			this.prompt([
@@ -20,42 +27,71 @@ module.exports = generators.Base.extend({
 				type    : 'input',
 				name    : 'name',
 				message : 'Project name',
-				default : this.name // Default to current folder name
+				default : this.appname // Default to current folder name
 			}, 
 			{
 				type    : 'input',
 				name    : 'clickTag',
 				message : 'ClickTag',
+				store : true,
 				default : 'http://example.com' 
-			}, 
-			{
-		      type: 'confirm',
-		      name: 'includeAdForm',
-		      message: 'Include AdForm?',
-		      default: true,
-      		}
+			},{
+				type: 'checkbox',
+				name: 'features',
+				message: 'What more would you like?',
+				choices: [{
+					name: 'Sass',
+					value: 'includeSass',
+					checked: true
+				} 
+				// ,{
+				// 	name: 'Modernizr',
+				// 	value: 'includeModernizr',
+				// 	checked: true
+				// }
+				]
+			}
 		], function (answers) {
 			// this.log(answers);
-			this.config.set('name', answers.name)
-			this.config.set('includeAdForm', answers.includeAdForm)
-			this.config.set('clickTag', answers.clickTag)
 
-			this.config.save()
+			var features = answers.features;
+
+			function hasFeature(feat) {
+				return features && features.indexOf(feat) !== -1;
+			};
+
+			this.includeSass = hasFeature('includeSass');
+			// this.includeModernizr = hasFeature('includeModernizr');
+
+			this.config.set('name', answers.name)
+			this.config.set('clickTag', answers.clickTag)
+			this.config.set('includeSass', this.includeSass)
+			// this.config.set('includeModernizr', this.includeModernizr)
+
+			this.config.save();
+			var data = {
+				date: (new Date).toISOString().split('T')[0],
+          		pkg: this.pkg.name,
+          		version: this.pkg.version,
+				name : answers.name,
+				clickTag : answers.clickTag,
+				includeSass : this.includeSass
+			}
 
 			this.fs.copyTpl(
 				this.templatePath('gulpfile.js'),
 				this.destinationPath('gulpfile.js'),
-				answers
+				data
 			);
 			this.fs.copyTpl(
 				this.templatePath('gitignore'),
 				this.destinationPath('.gitignore'),
-				answers
+				data
 			);
 			this.fs.copyTpl(
 				this.templatePath('_package.json'),
 				this.destinationPath('package.json'),
-				answers
+				data
 			);
 
 			 this.npmInstall();

@@ -10,4 +10,6 @@ body {
 	width: <%= width %>px;
 	height: <%= height %>px;
 	position: relative;
+	background: #eee;
+	margin:0 auto;
 }
