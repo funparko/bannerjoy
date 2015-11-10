@@ -42,7 +42,7 @@ Answer the question about width and height.
 
 ##### Distribute
 
-Create 
+Create minified versions of the banners and zip-files for delivery. 
 
 ```
 gulp
