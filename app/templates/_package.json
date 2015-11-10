@@ -22,6 +22,7 @@
     "gulp-minify-css": "^1.1.1",
     "gulp-minify-html": "^1.0.0",
     "gulp-sourcemaps": "^1.5.0",
+    "gulp-rename": "^1.2.2",
     "gulp-strip-debug": "^1.0.2"
   },
   "eslintConfig": {

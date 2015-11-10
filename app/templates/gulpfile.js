@@ -16,8 +16,9 @@ var regexp = /^[0-9]+x[0-9]+(_.*)?$/;
 
 // Directories
 var deliveryDir = 'delivery',
-	distDir = 'dist',
 	tmpDir = '.tmp',
+	distDir = 'dist',
+	resourcesDir = 'resources',
 	srcDir = 'src';
 
 
@@ -195,6 +196,15 @@ gulp.task('serve', ['styles'], function() {
 
 gulp.task('dist', ['images', 'html', 'extras'], function() {
 	
+	<% if (phpViewerFile) { %>
+	gulp.src(resourcesDir + '/' + 'index_php')
+		.pipe($.rename({
+			basename: "index",
+		    extname: ".php"
+		}))
+		.pipe(gulp.dest(distDir));
+	<% } %>
+
     for (var i = 0; i < sizes.length; i++) {
     	var src = sizes[i];
     	var dest = deliveryDir + '/' + sizes[i] + '.zip';

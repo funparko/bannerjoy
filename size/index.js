@@ -12,13 +12,11 @@ var adNetworks = [
 module.exports = generators.Base.extend({
 	constructor : function () {
 		generators.Base.apply(this, arguments);
-		this.argument('size', { 
-			type: String, 
-			optional : true, 
-			required : false
-		});
-		// And you can then access it later on this way; e.g. CamelCased
-		// this.log(this.size);
+		// this.argument('size', { 
+		// 	type: String, 
+		// 	optional : true, 
+		// 	required : false
+		// });
   	},
   	prompting : function () {
 		var done = this.async();
@@ -53,9 +51,10 @@ module.exports = generators.Base.extend({
 			this.name = answers.name;
 			this.network = answers.network;
 
-			console.log(answers.network)
+
 
 			var sizes = this.config.get('sizes');
+			
 			if (!sizes) {
 				sizes = [];
 			}
@@ -73,6 +72,9 @@ module.exports = generators.Base.extend({
 		}.bind(this));
 	},
   	templates : function () {
+
+  		console.log(this.config.get('clickTag'))
+
   		var data = {
 			name: this.name,
 			includeSass: this.config.get('includeSass'),
@@ -82,8 +84,8 @@ module.exports = generators.Base.extend({
 			width: this.width,
 			height: this.height
 		};
-		console.log()
-		var name = this.name.replace(/\s/, '_');
+
+		var name = this.name ? this.name.replace(/\s/, '_').toLowerCase() : '';
 		var folderName = scrDir + '/' + this.size + (name.length > 0 ? '_' + name : ''); 
 
 		this.fs.copyTpl(

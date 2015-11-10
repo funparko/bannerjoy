@@ -1,4 +1,6 @@
 var generators = require('yeoman-generator');
+var fs = require('fs');
+var yosay = require('yosay');
 
 module.exports = generators.Base.extend({
 	constructor: function () {
@@ -21,8 +23,11 @@ module.exports = generators.Base.extend({
 
 
   	prompting: function () {
+
+  		this.log(yosay('Joy! Please answer a few questions!'));
+
 		var done = this.async();
-			this.prompt([
+		this.prompt([
 			{
 				type    : 'input',
 				name    : 'name',
@@ -35,6 +40,12 @@ module.exports = generators.Base.extend({
 				message : 'ClickTag',
 				store : true,
 				default : 'http://example.com' 
+			}, 
+			{
+				type    : 'confirm',
+				name    : 'phpViewerFile',
+				message : 'Add a php viewerfile in dist?',
+				default : false 
 			},{
 				type: 'checkbox',
 				name: 'features',
@@ -59,12 +70,13 @@ module.exports = generators.Base.extend({
 			function hasFeature(feat) {
 				return features && features.indexOf(feat) !== -1;
 			};
-
+			
 			this.includeSass = hasFeature('includeSass');
 			// this.includeModernizr = hasFeature('includeModernizr');
 
 			this.config.set('name', answers.name)
 			this.config.set('clickTag', answers.clickTag)
+			this.config.set('phpViewerFile', answers.phpViewerFile)
 			this.config.set('includeSass', this.includeSass)
 			// this.config.set('includeModernizr', this.includeModernizr)
 
@@ -75,6 +87,7 @@ module.exports = generators.Base.extend({
           		version: this.pkg.version,
 				name : answers.name,
 				clickTag : answers.clickTag,
+				phpViewerFile : answers.phpViewerFile,
 				includeSass : this.includeSass
 			}
 
@@ -93,8 +106,17 @@ module.exports = generators.Base.extend({
 				this.destinationPath('package.json'),
 				data
 			);
+			if (answers.phpViewerFile) {
+				this.fs.copyTpl(
+					this.templatePath('index_php'),
+					this.destinationPath('resources/index_php'),
+					data
+				);
+			}
 
-			 this.npmInstall();
+			fs.mkdir('./src');
+
+			this.npmInstall();
 
 			done();
 		}.bind(this));

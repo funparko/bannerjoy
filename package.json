@@ -1,16 +1,17 @@
 {
   "name": "generator-bannerjoy",
   "license": "MIT",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Yeoman generator",
   "main": "app/index.js",
   "repository": "funparko/bannerjoy",
   "author": "Karl Peterz <karl.peterz@gmail.com> (https://github.com/funparko)",
   "files": [
-    "app"
+    "app",
+    "size"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --reporter spec --timeout 3000"
   },
   "author": {
     "name": "Kalle",
@@ -22,5 +23,8 @@
   "dependencies": {
     "mkdirp": "^0.5.1",
     "yeoman-generator": "^0.20.3"
+  },
+  "devDependencies": {
+    "mocha": "*"
   }
 }
