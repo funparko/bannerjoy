@@ -14,6 +14,7 @@ if ($handle = opendir('.')) {
 	        
 	    }
 	}
+	ksort($banners);
 	closedir($handle);
 }
 ?>
@@ -46,6 +47,7 @@ if ($handle = opendir('.')) {
 			  	<div class="panel panel-default">
 					<div class="panel-heading"><h4><?php echo $banner->title ?> <small><?php echo $banner->version ?></small></h4></div>
   					<div class="panel-body">
+				    	
 				    	<iframe scrolling="no" width="<?php echo $banner->width ?>" height="<?php echo $banner->height ?>" frameborder="0" src="<?php echo $folder . '/' . $banner->source ?>"></iframe>
 				  	 </div>
 				  <div class="panel-footer"><a href="<?php echo $folder . '/' . $banner->source ?>" class="pull-right">View banner</a><?php echo $banner->width ?>x<?php echo $banner->height ?></div>

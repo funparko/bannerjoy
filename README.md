@@ -7,7 +7,7 @@ Start by installing [Node.js](https://nodejs.org/) if you don't already have tha
 ##### Yeoman
 
 ```
-npm install -g yeoman
+npm install -g yo
 ```
 
 ##### Gulp
