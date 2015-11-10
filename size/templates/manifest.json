@@ -2,7 +2,7 @@
     "version": "1.0",
 
     "title": "<%= width %>x<%= height %> <%= name %> HTML", 
-    "description": "<%= network %>",  
+    "description": "<%= appName %> <%= network %>",  
 
     "width" : "<%= width %>", 
     "height": "<%= height %>", 

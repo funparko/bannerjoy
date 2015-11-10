@@ -23,6 +23,8 @@
     "gulp-minify-html": "^1.0.0",
     "gulp-sourcemaps": "^1.5.0",
     "gulp-rename": "^1.2.2",
+    "gulp-size": "^2.0.0",
+    "gulp-zip": "^3.0.2",
     "gulp-strip-debug": "^1.0.2"
   },
   "eslintConfig": {

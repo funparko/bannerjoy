@@ -73,10 +73,9 @@ module.exports = generators.Base.extend({
 	},
   	templates : function () {
 
-  		console.log(this.config.get('clickTag'))
-
   		var data = {
 			name: this.name,
+			appName: this.config.get('name'),
 			includeSass: this.config.get('includeSass'),
 			network: this.network,
 			clickTag: this.config.get('clickTag'),

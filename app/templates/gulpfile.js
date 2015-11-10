@@ -205,27 +205,18 @@ gulp.task('dist', ['images', 'html', 'extras'], function() {
 		.pipe(gulp.dest(distDir));
 	<% } %>
 
-    for (var i = 0; i < sizes.length; i++) {
-    	var src = sizes[i];
-    	var dest = deliveryDir + '/' + sizes[i] + '.zip';
-        var cmd = [
-        	'cd',
-        	distDir,
-        	'&&',
-        	'zip', 
-        	'-r', __dirname + '/' + dest, 
-        	src, 
-        	'-x', '"*.DS_Store"'
-        ];
-    	// console.log(cmd.join(' '))
-    	// console.log($.size({title: 'build', gzip: true}))
-    	// console.log('Zip ' + sizes[i] + ' => ' + sizes[i] + '.zip');
-		exec(cmd.join(' '), function(error, stdout, stderr) { 
-			// console.error(error) 
-			// console.log('---') 
-			// console.log(stdout) 
-		});
-    };
-  	
+	var streams = [];
+
+	for (var i = 0; i < sizes.length; i++) {
+		var zipFile = sizes[i] + '.zip';
+		stream = gulp.src(distDir + '/' + sizes[i] + '/**/*')
+			.pipe($.zip(zipFile))
+			.pipe($.size({title : zipFile}))
+			.pipe(gulp.dest(deliveryDir));
+		
+		streams.push(stream);
+	}
+	return es.concat(streams);
+
 });
- 
+

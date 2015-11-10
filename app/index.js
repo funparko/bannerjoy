@@ -46,7 +46,8 @@ module.exports = generators.Base.extend({
 				name    : 'phpViewerFile',
 				message : 'Add a php viewerfile in dist?',
 				default : false 
-			},{
+			},
+			{
 				type: 'checkbox',
 				name: 'features',
 				message: 'What more would you like?',
@@ -70,7 +71,7 @@ module.exports = generators.Base.extend({
 			function hasFeature(feat) {
 				return features && features.indexOf(feat) !== -1;
 			};
-			
+
 			this.includeSass = hasFeature('includeSass');
 			// this.includeModernizr = hasFeature('includeModernizr');
 
