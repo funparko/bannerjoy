@@ -46,31 +46,7 @@ gulp.task('sizes', function(callback) {
 
 
 gulp.task('default', ['clean', 'sizes'], function() {
-  	
-	var distPath = './' + distDir;
-	fs.stat(distPath, function(err, stats) {
-		if(err == null) {
-	        // console.log(distDir + ' exists');
-	    } else if(err.code == 'ENOENT') {
-	        fs.mkdir('./' + distDir);
-	    } else {
-	        console.log('Some other error: ', err.code);
-	    }
-	});
-	
-	var deliveryPath = './' + deliveryDir;
-	fs.stat(deliveryPath, function(err, stats) {
-		if(err == null) {
-	        // console.log(distDir + ' exists');
-	    } else if(err.code == 'ENOENT') {
-	        fs.mkdir('./' + deliveryDir);
-	    } else {
-	        console.log('Some other error: ', err.code);
-	    }
-	});
-
 	gulp.start('dist');
-
 });
   
 gulp.task('images', function() {
@@ -204,19 +180,31 @@ gulp.task('dist', ['images', 'html', 'extras'], function() {
 		}))
 		.pipe(gulp.dest(distDir));
 	<% } %>
-
-	var streams = [];
-
+	
+	$.util.log($.util.colors.yellow('------------- Size of Zip-files -------------'));
+	var longestString = 0;
 	for (var i = 0; i < sizes.length; i++) {
-		var zipFile = sizes[i] + '.zip';
-		stream = gulp.src(distDir + '/' + sizes[i] + '/**/*')
-			.pipe($.zip(zipFile))
-			.pipe($.size({title : zipFile}))
-			.pipe(gulp.dest(deliveryDir));
-		
-		streams.push(stream);
+		if (sizes[i].length > longestString) {
+			longestString = sizes[i].length;
+		}
 	}
-	return es.concat(streams);
+	
+	var streams = [];
+	for (var i = 0; i < sizes.length; i++) {
+		var pad = new Array(longestString - sizes[i].length + 1).join(' ');
+		var zipFile = sizes[i] + '.zip';
+		streams.push(gulp.src(distDir + '/' + sizes[i] + '/**/*')
+			.pipe($.zip(zipFile))
+			.pipe($.size({title : '* ' +  zipFile + pad}))
+			.pipe(gulp.dest(deliveryDir)));
+
+	}
+	
+	var pipe = es.concat(streams);
+	pipe.on('end', function () {
+		$.util.log($.util.colors.yellow('💩-------------------------------------------'));	
+	});
+	return pipe;
 
 });
-
+ 
