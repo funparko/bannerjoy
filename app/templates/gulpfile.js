@@ -75,29 +75,36 @@ gulp.task('images', function() {
 	
 	return es.concat(streams);
 });
+
+<% if (includeSass) { %>
+var compileSass = function(path) {
+	return gulp.src(path)
+		.pipe($.plumber())
+		.pipe($.sourcemaps.init())
+		.pipe($.sass.sync({
+			outputStyle: 'expanded',
+			precision: 10,
+			includePaths: ['.']
+		}).on('error', $.sass.logError))
+	    .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
+	    .pipe($.sourcemaps.write())
+	    .pipe(gulp.dest(function(file) {
+			return file.base;
+		}))
+	    // .pipe(reload({stream: true}));
+}
+<% } %>
   
 gulp.task('styles', ['sizes'], function(callback) {
-	var streams = [];
 
 	if (sizes.length === 0) {
 		callback();
 	}
 
+	var streams = [];
 	for (var i = 0; i < sizes.length; i++) {
 		<% if (includeSass) { %>
-		streams.push(gulp.src(srcDir + '/' + sizes[i] + '/styles/*.scss')
-			.pipe($.plumber())
-			.pipe($.sourcemaps.init())
-			.pipe($.sass.sync({
-				outputStyle: 'expanded',
-				precision: 10,
-				includePaths: ['.']
-			}).on('error', $.sass.logError))
-		    .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
-		    .pipe($.sourcemaps.write())
-		    .pipe(gulp.dest(srcDir + '/' + sizes[i] + '/styles'))
-		    .pipe(reload({stream: true})));
-
+		streams.push(compileSass(srcDir + '/' + sizes[i] + '/styles/*.scss'));
 		<% } else { %>
 		streams.push(gulp.src(srcDir + '/' + sizes[i] + '/styles/*.css')
 		    // .pipe($.sourcemaps.init())
@@ -148,34 +155,17 @@ gulp.task('extras', function() {
 });
 
 
-// gulp.task('serve', ['styles'], function() {
-// 	browserSync({
-// 		notify: false,
-// 		port: 9000,
-// 		startPath : sizes.length > 0 ? sizes[0] : null,
-// 		server: {
-// 			baseDir: [tmpDir, srcDir],
-// 			routes: {
-// 				// '/bower_components': 'bower_components'
-// 			}
-// 		}
-// 	});
-
-// 	gulp.watch([
-// 		srcDir + '/**/*.html',
-// 		srcDir + '/**/*.js',
-// 		srcDir + '/**/*'
-// 		// '.tmp/fonts/**/*'
-// 	]).on('change', reload);
-
-// 	gulp.watch(srcDir + '/**/*.scss', ['styles']);
-// 	// gulp.watch('app/fonts/**/*', ['fonts']);
-// 	// gulp.watch('bower.json', ['wiredep', 'fonts']);
-// });
-
-gulp.task('watch', [], function() {
-	gulp.watch(srcDir + '/**/styles/*.scss', ['styles']);
+gulp.task('watch', ['sizes'], function() {
+	gulp.watch(srcDir + '/**/styles/*.scss').on('change', function(event) {
+		compileSass(event.path);
+	});	
+	gulp.watch(resourcesDir + '/**/styles/*.scss').on('change', function() {
+		for (var i = 0; i < sizes.length; i++) {
+			compileSass(srcDir + '/' + sizes[i] + '/styles/*.scss');
+		}
+	});
 });
+
 
 gulp.task('dist', ['images', 'html', 'extras'], function() {
 	

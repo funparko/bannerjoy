@@ -24,7 +24,7 @@ module.exports = generators.Base.extend({
 
   	prompting: function () {
 
-  		this.log(yosay('Joy! Please answer a few questions!'));
+  		this.log(yosay('Oh Banner Joy! Please answer a few questions!'));
 
 		var done = this.async();
 		this.prompt([

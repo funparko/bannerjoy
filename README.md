@@ -31,7 +31,7 @@ To add a new size to the project run this:
 yo bannerjoy:size
 ```
 
-Answer the question about width, height and network. A new folder ´[width]x[height](_name)´ with will be created in `src`.
+Answer the question about width, height and network. A new folder with will be created in `src`.
 
 ##### Distribute
 
@@ -42,3 +42,9 @@ gulp
 ```
 
 Zip-files for each size with HTML, CSS and JS minified will be created in `delivery`-folder and minified version of the banners will be created in `dist`. All .DS_Store-files will be excluded from the zip-files.
+
+```
+gulp watch
+```
+
+Experimental gulp watch for Sass.
