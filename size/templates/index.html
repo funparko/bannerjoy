@@ -10,7 +10,7 @@
 		
         <% if (network == 'adform') { %>
         <script>document.write('<script src="'+ (window.API_URL || 'https://s1.adform.net/banners/scripts/rmb/Adform.DHTML.js?bv='+ Math.random()) +'"><\/script>');</script>
-		<% } else if (network == 'doubleclick' || network == 'expedia' ) { %>
+		<% } else if (network == 'doubleclick') { %>
         <meta name="ad.size" content="width=<%= width %>,height=<%= height %>">
         <script>
             var clickTag = '<%= clickTag %>'; 

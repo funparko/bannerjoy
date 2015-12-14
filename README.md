@@ -48,3 +48,10 @@ gulp watch
 ```
 
 Experimental gulp watch for Sass.
+
+## Folder structure
+
+* `src` - The sourcecode for the banners is placed here. There is one directory for each banner-size.
+* `dist` - Minified versions of the banners after running `gulp` are found here.
+* `delivery` - After the `gulp` command has run this folder contains the minified banners zipped. One zip-file per size. 
+* `resources` - Folder for placing for example mutual styles and scripts used by multiple banners. The PHP-viewer file is also stored here.

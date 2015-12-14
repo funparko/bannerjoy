@@ -4,7 +4,6 @@ var scrDir = 'src';
 var adNetworks = [
 	{value : 'adform', name : 'Adform'},
 	{value : 'doubleclick', name : 'DoubleClick'},
-	{value : 'expedia', name : 'Expedia'},
 	{value : 'none', name : 'None'}
 ];
 
