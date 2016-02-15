@@ -9,12 +9,15 @@
         <!-- endbuild -->
 		
         <% if (network == 'adform') { %>
+        <!-- Adform -->
         <script>document.write('<script src="'+ (window.API_URL || 'https://s1.adform.net/banners/scripts/rmb/Adform.DHTML.js?bv='+ Math.random()) +'"><\/script>');</script>
 		<% } else if (network == 'doubleclick') { %>
+        <!-- DoubleClick -->
         <meta name="ad.size" content="width=<%= width %>,height=<%= height %>">
         <script>
             var clickTag = '<%= clickTag %>'; 
         </script>
+        <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
 		<% } %>
 
     </head>

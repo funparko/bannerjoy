@@ -86,7 +86,7 @@ var compileSass = function(path) {
       precision: 10,
       includePaths: ['.']
     }).on('error', $.sass.logError))
-      .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
+      .pipe($.autoprefixer({browsers: ['> 1%', 'last 3 versions', 'Firefox ESR']}))
       .pipe($.sourcemaps.write())
       .pipe(gulp.dest(function(file) {
       return file.base;
@@ -128,10 +128,10 @@ gulp.task('html', ['styles'], function() {
       .pipe(assets)
       .pipe($.if('*.js', $.uglify()))
       .pipe($.if('*.js', $.stripDebug()))
-      .pipe($.if('*.css', $.minifyCss({compatibility: '*'})))
+      .pipe($.if('*.css', $.cssnano()))
       .pipe(assets.restore())
       .pipe($.useref())
-      .pipe($.if('*.html', $.minifyHtml({conditionals: true, loose: true})))
+      .pipe($.if('*.html', $.htmlmin({conditionals: true, loose: true})))
       .pipe(gulp.dest(distDir + '/' + sizes[i])));
     
   }
