@@ -26,7 +26,8 @@
     "gulp-size": "^2.0.0",
     "gulp-zip": "^3.0.2",
     "gulp-util": "^3.0.7",
-    "gulp-strip-debug": "^1.0.2"
+    "gulp-strip-debug": "^1.0.2"<% if (ftpUpload) { %>,
+    "vinyl-ftp": "^0.4.5"<% } %>
   },
   "eslintConfig": {
     "env": {

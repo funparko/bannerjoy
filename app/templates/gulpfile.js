@@ -22,6 +22,7 @@ var deliveryDir = 'delivery',
   srcDir = 'src';
 
 
+
 var onError = function(error, stdout, stderr) { 
   console.error(error) 
   console.log(stdout) 
@@ -47,6 +48,30 @@ gulp.task('sizes', function(callback) {
     }
   });
 });
+
+<% if (ftpUpload) { %>
+var ftpConfigFile = './ftp_config.json';
+gulp.task('deploy', ['sizes'], function() {
+  var config = JSON.parse(fs.readFileSync(ftpConfigFile));
+
+  var conn = ftp.create( {
+      host:     config.host,
+      user:     config.user,
+      password: config.password,
+      parallel: 10,
+      log:      $.util.log
+  } );
+
+  var globs = [
+    distDir + '/**'
+  ];
+
+  return gulp.src( globs, { base: distDir, buffer: false } )
+      .pipe( conn.newer( config.path ) ) // only upload newer files
+      .pipe( conn.dest( config.path ) );
+
+});
+<% } %>
 
 
 gulp.task('default', ['clean', 'sizes'], function() {

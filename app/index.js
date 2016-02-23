@@ -55,13 +55,52 @@ module.exports = generators.Base.extend({
 					name: 'Sass',
 					value: 'includeSass',
 					checked: true
-				} 
-				// ,{
-				// 	name: 'Modernizr',
-				// 	value: 'includeModernizr',
-				// 	checked: true
-				// }
-				]
+				}]
+			}, 
+			{
+				type    : 'confirm',
+				name    : 'ftpUpload',
+				message : 'FTP upload?',
+				default : false 
+			},
+			{
+				type    : 'input',
+				name    : 'ftpServer',
+				message : 'FTP-server',
+				default : 'ftp.server.com', // Default to current folder name
+				store   : true,
+				when    : function ( answers ) {
+		      return answers.ftpUpload;
+		    }
+			}, 
+			{
+				type    : 'input',
+				name    : 'ftpUser',
+				message : 'FTP-user',
+				default : 'username', // Default to current folder name
+				store   : true,
+				when    : function ( answers ) {
+		      return answers.ftpUpload;
+		    }
+			}, 
+			{
+				type    : 'input',
+				name    : 'ftpPath',
+				message : 'FTP-path',
+				default : '/public_html', // Default to current folder name
+				store   : true,
+				when    : function ( answers ) {
+		      return answers.ftpUpload;
+		    }
+			}, 
+			{
+				type    : 'password',
+				name    : 'ftpPassword',
+				message : 'FTP-password',
+				default : 'secretpass', // Default to current folder name
+				when    : function ( answers ) {
+		      return answers.ftpUpload;
+		    }
 			}
 		], function (answers) {
 			// this.log(answers);
@@ -79,9 +118,26 @@ module.exports = generators.Base.extend({
 			this.config.set('clickTag', answers.clickTag)
 			this.config.set('phpViewerFile', answers.phpViewerFile)
 			this.config.set('includeSass', this.includeSass)
+			this.config.set('ftpUpload', answers.ftpUpload)
+
+			if (answers.ftpUpload) {
+				var config = {
+					host			: answers.ftpServer,
+					password 	: answers.ftpPassword,
+					user 			: answers.ftpUser,
+					path 			: answers.ftpPath
+				};
+				fs.writeFile('./ftp_config.json', JSON.stringify(config), function(err) {
+					if(err) {
+					    return console.log(err);
+					}
+				}); 
+			}
 			// this.config.set('includeModernizr', this.includeModernizr)
 
 			this.config.save();
+
+
 			var data = {
 				date: (new Date).toISOString().split('T')[0],
           		pkg: this.pkg.name,
@@ -89,6 +145,7 @@ module.exports = generators.Base.extend({
 				name : answers.name,
 				clickTag : answers.clickTag,
 				phpViewerFile : answers.phpViewerFile,
+				ftpUpload : answers.ftpUpload,
 				includeSass : this.includeSass
 			}
 

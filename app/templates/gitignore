@@ -4,3 +4,5 @@ delivery
 .tmp
 .sass-cache
 bower_components
+ftp_config.json
+*.zip

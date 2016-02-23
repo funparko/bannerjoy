@@ -1,45 +1,177 @@
 <?php
 
+define('PROJECT_NAME', '<%= appName %>');
+//define('GROUP_NY_NAME', false);
+
+if (!defined('PROJECT_NAME')) {
+	define('PROJECT_NAME', basename(dirname(__FILE__)));
+}
+if (!defined('GROUP_NY_NAME')) {
+	define('GROUP_NY_NAME', false);
+}
+
+define('TMP_FOLDER', '.tmp');
+define('ZIP', class_exists('ZipArchive'));
+define('DS', DIRECTORY_SEPARATOR);
+		
+if (!is_dir(TMP_FOLDER)) {
+	mkdir(TMP_FOLDER);
+}
+
+
 $banners = array();
 if ($handle = opendir('.')) {
 	while (false !== ($entry = readdir($handle))) {
-	    if ($entry !== "." && $entry !== ".." && strpos($entry, '.') !== 0 && $entry !== basename(__FILE__)) {
-	    	$path = $entry . '/' . 'manifest.json';
+    if ($entry !== "." && $entry !== ".." && strpos($entry, '.') !== 0 && $entry !== basename(__FILE__) && preg_match('/^[0-9]+x[0-9]+(_.*)?$/', $entry)) {
+    	$folder = $entry;
+    	$path = $folder . DS . 'manifest.json';
 
-	    	if (file_exists($path)) {
-	    		$banners[$entry] = json_decode(file_get_contents($path));
-	    	} else {
-	    		$banners[$entry] = null;	
-	    	}
-	        
-	    }
+    	$fileName = PROJECT_NAME . '_' .$folder . '.zip';
+    	$zipPath = TMP_FOLDER . DS . $fileName;
+    	zipFolder($folder, $zipPath);
+    	$file_size = round(filesize($zipPath) / 1000) . 'K';
+    	
+    	$data = preg_split('/x|_/', $folder, 3);
+    	if (file_exists($path)) {
+    		$banner = json_decode(file_get_contents($path));    		
+    	} else {
+    		$banner = new stdClass();
+				$banner->width = intval($data[0]);
+    		$banner->height = intval($data[1]);
+    		$banner->title = $folder;
+    	}
+  		$banner->id = $folder;
+  		$banner->src = $folder;
+  		$banner->name = !empty($data[2]) ? $data[2] : null;
+    	$banner->file_size = $file_size;
+
+    	$banners[$entry] = $banner;
+    	
+    }
 	}
+
 	function cmp($a, $b) {
 	  if ($a->width == $b->width) {
 	  	if ($a->height == $b->height) {
-	    	return 0;
+	    	if (empty($a->name) || empty($b->name) || $a->name == $b->name) {
+		    	return 0;
+		  	}
+		  	return ($a->name < $b->name) ? -1 : 1;
 	  	}
 	  	return ($a->height < $b->height) ? -1 : 1;
 	  }
 	  return ($a->width < $b->width) ? -1 : 1;
 	}
 
-
 	uasort($banners, "cmp");
-	// ksort($banners);
 	closedir($handle);
 }
+if (GROUP_NY_NAME) {
+	$groups = array();
+	foreach ($banners as $id => $banner) {
+		if (empty($banner->name)) {
+			$groupName = '-';
+		} else {
+			$groupName = $banner->name;
+		}
+		if (empty($groups[$groupName])) {
+			$groups[$groupName] = array(
+				'title' => $groupName,
+				'banners' => array(),
+			);
+		}
+		$groups[$groupName]['banners'][$id] = $banner;
+	}
+} else {
+	$groups[] = array(
+		'banners' => $banners
+	);
+}
+
+function zipFolder($folder, $pathToZip) {
+	$rootPath = realpath($folder);
+	
+	if (is_dir($rootPath)) {
+		$zip = new ZipArchive();
+		$zip->open($pathToZip, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootPath), RecursiveIteratorIterator::LEAVES_ONLY);
+
+		foreach ($files as $name => $file) {
+	    if (!$file->isDir() && strpos(basename($name), '.') !== 0) {
+	        // Get real and relative path for current file
+	        $filePath = $file->getRealPath();
+	        $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+	        $zip->addFile($filePath, $relativePath);
+	    }
+	  }
+		$zip->close();
+	}
+}
+function folder_file_size($path) {
+	$rootPath = realpath($path);
+	$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootPath));
+
+	$totalSize = 0;
+	foreach ($iterator as $file) {
+	    $totalSize += $file->getSize();
+	}
+	return round($totalSize / 1000);
+}
+
+if (isset($_GET['download'])) {
+
+	if (isset($_GET['banner'])) {
+		$folder = $_GET['banner'];
+		$fileName = PROJECT_NAME . '_' .$folder . '.zip';
+		$zipPath = TMP_FOLDER . DS . $fileName;
+		
+		zipFolder($folder, $zipPath);
+
+	} else {
+		$fileName = PROJECT_NAME . '.zip';
+		$zipPath = TMP_FOLDER . DS . $fileName;
+
+		$zip = new ZipArchive();
+		$zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+		
+		foreach ($banners as $folder => $banner) {
+			$bannerZipFileName = PROJECT_NAME . '_' .$folder . '.zip';
+			$bannerZipPath = TMP_FOLDER . DS . $bannerZipFileName;
+			
+			zipFolder($folder, $bannerZipPath);
+	    $zip->addFile($bannerZipPath, $bannerZipFileName);
+		}
+
+		$zip->close();
+	}
+
+	header("Content-type: application/zip"); 
+	header("Content-Disposition: attachment; filename=". $fileName);
+	header("Content-length: " . filesize($zipPath));
+	header("Pragma: no-cache"); 
+	header("Expires: 0"); 
+	readfile($zipPath);
+
+	die();
+}
+
 ?>
 <!DOCTYPE html>
 <html>
 	<head>
-    	<meta charset="utf-8"/>
-		<title>Banners</title>
+		<meta charset="utf-8"/>
+		<title>Banners - <?php echo PROJECT_NAME ?></title>
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
 		<!-- Optional theme -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">		<style>
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">		<style> -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/united/bootstrap.min.css" crossorigin="anonymous">
+		<style>
+		body {
+			background: #f6f6f6;
+		}
 		h4 {
 			margin:0;
 		}
@@ -47,30 +179,164 @@ if ($handle = opendir('.')) {
 			display: block;
 			margin:0 auto;
 		}
-
+		#banner-container {
+			position: relative;
+		}
+		#banner {
+			position: fixed;
+			right:15px;
+			left: 16.66666667%;
+			/*width: 100%;*/
+		}
+		.banner-holder {
+			background: #fff;
+			position: relative;
+			border: 1px solid #dddddd;
+    	border-radius: 4px;
+    	padding:30px 14px 9px;
+    	margin-bottom:9px;
+		}
+		.label {
+			position: absolute;
+			top:-1px;
+			right:-1px;
+			border-bottom-right-radius: 0;
+			border-top-left-radius: 0;
+		}
 		</style>
     </head>
   	<body>	
 
   		<div class="container-fluid">
-  			<h1>Banners</h1>
-  			<ul class="nav nav-pills">
-				<?php foreach ($banners as $folder => $banner): ?>
-				  <li><a href="#banner-<?php echo $folder ?>"><?php echo $banner->title ?></a></li>
-				<?php endforeach ?>
-				</ul>
-				<hr>
-
-				<?php foreach ($banners as $folder => $banner): ?>
-		  	<div class="panel panel-default" id="banner-<?php echo $folder ?>">
-					<div class="panel-heading"><h4><?php echo $banner->title ?> <small><?php echo $banner->version ?></small></h4></div>
-						<div class="panel-body">
-			    		<iframe scrolling="no" width="<?php echo $banner->width ?>" height="<?php echo $banner->height ?>" frameborder="0" src="<?php echo $folder . '/' . $banner->source ?>"></iframe>
-			  		</div>
-			  	<div class="panel-footer"><a href="<?php echo $folder . '/' . $banner->source ?>" class="pull-right">View banner</a><?php echo $banner->width ?>x<?php echo $banner->height ?></div>
+	  		<header class="page-header">
+	  			<h1>Banners <small><?php echo PROJECT_NAME ?></small></h1>
+	      </header>
+  			<div class="row">
+  				<div class="col-sm-2" id="banner-list">
+  				<?php $x = 0;
+  				foreach ($groups as $title => $group): ?>
+  					
+						  <!-- Default panel contents -->
+						  <?php if (isset($group['title'])): ?>
+						    <h4 class="list-group-item-heading"><?php echo $group['title'] ?></h4>
+						  <?php endif ?>
+	  					<div class="list-group">
+							<?php 
+							
+							foreach ($group['banners'] as $folder => $banner): ?>
+							  <a href="#<?php echo $banner->id ?>" class="banner-link list-group-item <?php echo $x==0 ? 'active' : '' ?>" data-width="<?php echo $banner->width ?>" data-id="<?php echo $banner->id ?>" data-height="<?php echo $banner->height ?>"><?php echo $banner->title ?> 
+							  	<small class="pull-right text-muted"><?php echo $banner->file_size ?></small>
+							  </a>
+							<?php
+							$x++;
+							endforeach ?>
+							</div>
+  				<?php endforeach ?>
+		  			
+						<div class="list-group">
+					  	<a href="#all" class="list-group-item banner-link" data-id="all"><span class="glyphicon glyphicon-align-justify"></span> Show all</a>
+					  	<?php if (ZIP): ?>
+					  	<a href="?download" class="list-group-item"><span class="glyphicon glyphicon-download-alt"></span> Download ZIP</a>
+					  	<?php endif ?>
+						</div>
+					</div>
+  				<div class="col-sm-10" id="banner-container">
+  					<div id="banner" class="clearfix clear banner-holder">
+  						<?php reset($banners);
+  						$banner = current($banners); ?>
+  						<h4><span class="label label-primary"><?php echo $banner->id ?></span></h4>
+	  					<iframe scrolling="no" width="<?php echo $banner->width ?>" height="<?php echo $banner->height ?>" frameborder="0" src="<?php echo $banner->src ?>"></iframe>
+	  					<hr>
+	  					<p class="pull-left">
+	  						<span class="description"><?php echo $banner->description ?></span> <small class="text-muted"><?php echo $banner->file_size ?></small>
+	  					<br>
+	  					<!-- <b>Size:</b> <span class="size"><?php echo $banner->width . 'x'. $banner->height ?></span></p> -->
+	  					<p class="pull-right">
+	  						<?php if (ZIP): ?>
+	  						<a href="?download&amp;banner=<?php echo $folder ?>" class="download"><span class="glyphicon glyphicon-download-alt"></span> ZIP</a> | 
+	  						<?php endif ?>
+	  						<a href="<?php echo $banner->src ?>" class="new-window" target="_blank"><span class="glyphicon glyphicon-new-window"></span> New window</a> | 
+	  						<a href="#<?php echo $banner->src ?>" class="reload"><span class="glyphicon glyphicon-refresh"></span> Reload</a>
+	  					</p>
+						</div>
+					</div>
 				</div>
-				<?php endforeach ?>
 			</div>
  		</div>
+ 		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+ 		<script>
+ 			var banners = <?php echo json_encode($banners) ?>;
+ 			var showBanner = function(id, $el) {
+ 				var banner = banners[id];
+ 				if (!banner) return;
+
+ 				$el.show();
+				$el.find('iframe')
+					.attr('src', banner.src + '?r=' + Math.random())
+					.attr('width', banner.width)
+					.attr('height', banner.height);
+					// .animate({'height' : banner.height});
+				
+				$el.find('.size').text(banner.width + 'x' + banner.height);
+				$el.find('.description').text(banner.description);
+				$el.find('.new-window').attr('href', banner.src);
+				$el.find('.download').attr('href','?download&banner=' + banner.id);
+				$el.find('.label').text(banner.id);
+				$el.find('.file-size').text(banner.file_size);
+ 			} 			
+ 			var showAll = function(id) {
+ 				if ($('.show-all-container').size() > 0) {
+ 					return;
+ 				}
+ 				$banner.hide();
+ 				for (var id in banners) {
+			    if (banners.hasOwnProperty(id)) {
+						var $el = $banner.clone().attr('id', '');
+						showBanner(id, $el)
+						$el.addClass('show-all-container').appendTo('#banner-container').show();
+			    };
+				}
+			};
+			var currentID;
+
+ 			$(function() {
+ 				$banner = $('#banner');
+ 				
+ 				$('.banner-link').on('click', function(e) {
+ 					$('#banner-list .active').removeClass('active');
+ 					$(this).addClass('active')
+ 					
+ 					var id = $(this).data('id')
+ 					if (id === 'all') {
+ 						showAll();
+ 					} else {
+ 						if ($('.show-all-container').size() > 0) {
+		 					$('.show-all-container').remove();
+		 				}
+ 						showBanner(id, $banner);
+ 					}
+ 				});
+
+ 				$(document.body).on('click', '.reload', function(e) {
+ 					e.preventDefault();
+					var $iframe = $(this).parent().parent().find('iframe');
+ 					$iframe.attr('src', $iframe.attr('src') + '?r=' + Math.random());
+ 				});
+	 			
+	 			var hash = location.hash.replace('#', '');
+	 			if(hash && banners[hash] || hash === 'all') {
+ 					if (hash === 'all') {
+ 						showAll();
+ 					} else {
+						showBanner(hash, $banner);
+ 					}
+ 					currentID = hash;
+
+					$('.banner-link.active').removeClass('active');
+					$('.banner-link[data-id="' + hash + '"]').addClass('active');
+	 			}
+ 			});
+
+ 		</script>
 	</body>
 </html>

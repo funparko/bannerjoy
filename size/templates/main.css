@@ -1,15 +1,27 @@
+<% if (includeSass) { %>
+$banner-width : <%= width %>px;
+$banner-height : <%= height %>px;
+<% } %>
+
 html,
 body {
 	margin: 0;
 	padding: 0; 
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 #banner {
-	overflow: hidden;
-	cursor: pointer;
+	<% if (includeSass) { %>
+	width : $banner-width;
+	height : $banner-height;
+	<% } else { %>
 	width: <%= width %>px;
 	height: <%= height %>px;
+	<% } %>
+
+	overflow: hidden;
+	cursor: pointer;
 	position: relative;
 	background: #eee;
 	margin:0 auto;

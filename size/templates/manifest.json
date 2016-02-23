@@ -1,7 +1,7 @@
 {
     "version": "1.0",
 
-    "title": "<%= width %>x<%= height %> <%= name %> HTML", 
+    "title": "<%= width %>x<%= height %> <%= name %>", 
     "description": "<%= appName %> <%= network %>",  
 
     "width" : "<%= width %>", 

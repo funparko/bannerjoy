@@ -52,20 +52,20 @@ module.exports = generators.Base.extend({
 
 
 
-			var sizes = this.config.get('sizes');
+			// var sizes = this.config.get('sizes');
 			
-			if (!sizes) {
-				sizes = [];
-			}
-			sizes.push({
-				width : this.width,
-				height : this.height,
-				name : this.name,
-				network : this.network,
-				size : this.size
-			});
+			// if (!sizes) {
+			// 	sizes = [];
+			// }
+			// sizes.push({
+			// 	width : this.width,
+			// 	height : this.height,
+			// 	name : this.name,
+			// 	network : this.network,
+			// 	size : this.size
+			// });
 
-			this.config.set('sizes', sizes);
+			// this.config.set('sizes', sizes);
 
 			done();
 		}.bind(this));
