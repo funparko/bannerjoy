@@ -59,6 +59,21 @@ module.exports = generators.Base.extend({
 			}, 
 			{
 				type    : 'confirm',
+				name    : 'tinify',
+				message : 'Use Tinify?',
+				default : false,
+			},
+			{
+				type    : 'input',
+				name    : 'tinifyKey',
+				message : 'TinyPNG API-key',
+				store : true,
+				when    : function ( answers ) {
+		      return answers.tinify;
+		    }
+			}, 
+			{
+				type    : 'confirm',
 				name    : 'ftpUpload',
 				message : 'FTP upload?',
 				default : false 
@@ -97,7 +112,6 @@ module.exports = generators.Base.extend({
 				type    : 'password',
 				name    : 'ftpPassword',
 				message : 'FTP-password',
-				default : 'secretpass', // Default to current folder name
 				when    : function ( answers ) {
 		      return answers.ftpUpload;
 		    }
@@ -118,21 +132,26 @@ module.exports = generators.Base.extend({
 			this.config.set('clickTag', answers.clickTag)
 			this.config.set('phpViewerFile', answers.phpViewerFile)
 			this.config.set('includeSass', this.includeSass)
-			this.config.set('ftpUpload', answers.ftpUpload)
 
+			var config = {};
 			if (answers.ftpUpload) {
-				var config = {
+				config.ftp = {
 					host			: answers.ftpServer,
 					password 	: answers.ftpPassword,
 					user 			: answers.ftpUser,
 					path 			: answers.ftpPath
 				};
-				fs.writeFile('./ftp_config.json', JSON.stringify(config), function(err) {
-					if(err) {
-					    return console.log(err);
-					}
-				}); 
 			}
+			if (answers.tinify) {
+				config.tinify = {
+					key	: answers.tinifyKey
+				};
+			}
+			fs.writeFile('./config.json', JSON.stringify(config), function(err) {
+				if(err) {
+				    return console.log(err);
+				}
+			}); 
 			// this.config.set('includeModernizr', this.includeModernizr)
 
 			this.config.save();

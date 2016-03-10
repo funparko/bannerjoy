@@ -7,7 +7,8 @@ var del = require('del'),
   fs = require('fs');
   exec = require('child_process').exec
   $ = gulpLoadPlugins(),
-  browserSync = require('browser-sync');
+  browserSync = require('browser-sync')<% if (ftpUpload) { %>,
+  ftp = require( 'vinyl-ftp' )<% } %>;
 
 
 var reload = browserSync.reload;
@@ -21,7 +22,7 @@ var deliveryDir = 'delivery',
   resourcesDir = 'resources',
   srcDir = 'src';
 
-
+var configFile = './config.json';
 
 var onError = function(error, stdout, stderr) { 
   console.error(error) 
@@ -50,16 +51,16 @@ gulp.task('sizes', function(callback) {
 });
 
 <% if (ftpUpload) { %>
-var ftpConfigFile = './ftp_config.json';
-gulp.task('deploy', ['sizes'], function() {
-  var config = JSON.parse(fs.readFileSync(ftpConfigFile));
 
+gulp.task('deploy',  function() {
+  var config = JSON.parse(fs.readFileSync(configFile));
+  
   var conn = ftp.create( {
-      host:     config.host,
-      user:     config.user,
-      password: config.password,
-      parallel: 10,
-      log:      $.util.log
+    host:     config.ftp.host,
+    user:     config.ftp.user,
+    password: config.ftp.password,
+    parallel: 10,
+    log:      $.util.log
   } );
 
   var globs = [
@@ -67,8 +68,8 @@ gulp.task('deploy', ['sizes'], function() {
   ];
 
   return gulp.src( globs, { base: distDir, buffer: false } )
-      .pipe( conn.newer( config.path ) ) // only upload newer files
-      .pipe( conn.dest( config.path ) );
+      .pipe( conn.newer( config.ftp.path ) ) // only upload newer files
+      .pipe( conn.dest( config.ftp.path ) );
 
 });
 <% } %>
@@ -154,6 +155,7 @@ gulp.task('html', ['styles'], function() {
       .pipe($.if('*.js', $.uglify()))
       .pipe($.if('*.js', $.stripDebug()))
       .pipe($.if('*.css', $.cssnano()))
+      .pipe($.if('*.css', $.autoprefixer({browsers: ['> 1%', 'last 3 versions', 'Firefox ESR']})))
       .pipe(assets.restore())
       .pipe($.useref())
       .pipe($.if('*.html', $.htmlmin({conditionals: true, loose: true})))

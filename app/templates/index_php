@@ -1,6 +1,6 @@
 <?php
 
-define('PROJECT_NAME', '<%= appName %>');
+//define('PROJECT_NAME', '');
 //define('GROUP_NY_NAME', false);
 
 if (!defined('PROJECT_NAME')) {
@@ -162,6 +162,8 @@ if (isset($_GET['download'])) {
 	<head>
 		<meta charset="utf-8"/>
 		<title>Banners - <?php echo PROJECT_NAME ?></title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
