@@ -4,6 +4,7 @@ var scrDir = 'src';
 var adNetworks = [
 	{value : 'adform', name : 'Adform'},
 	{value : 'doubleclick', name : 'DoubleClick'},
+	{value : 'adtomafusion', name : 'Adtoma Fusion'},
 	{value : 'none', name : 'None'}
 ];
 
@@ -11,13 +12,8 @@ var adNetworks = [
 module.exports = generators.Base.extend({
 	constructor : function () {
 		generators.Base.apply(this, arguments);
-		// this.argument('size', { 
-		// 	type: String, 
-		// 	optional : true, 
-		// 	required : false
-		// });
-  	},
-  	prompting : function () {
+ 	},
+ 	prompting : function () {
 		var done = this.async();
 			this.prompt([
 			{
@@ -49,23 +45,6 @@ module.exports = generators.Base.extend({
 			this.size = answers.width + 'x' + answers.height;
 			this.name = answers.name;
 			this.network = answers.network;
-
-
-
-			// var sizes = this.config.get('sizes');
-			
-			// if (!sizes) {
-			// 	sizes = [];
-			// }
-			// sizes.push({
-			// 	width : this.width,
-			// 	height : this.height,
-			// 	name : this.name,
-			// 	network : this.network,
-			// 	size : this.size
-			// });
-
-			// this.config.set('sizes', sizes);
 
 			done();
 		}.bind(this));

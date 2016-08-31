@@ -12,12 +12,17 @@
         <!-- Adform -->
         <script>document.write('<script src="'+ (window.API_URL || 'https://s1.adform.net/banners/scripts/rmb/Adform.DHTML.js?bv='+ Math.random()) +'"><\/script>');</script>
 		<% } else if (network == 'doubleclick') { %>
+        
         <!-- DoubleClick -->
         <meta name="ad.size" content="width=<%= width %>,height=<%= height %>">
         <script>
             var clickTag = '<%= clickTag %>'; 
         </script>
         <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
+        <% } else if (network == 'adtomafusion') { %>
+
+        <!-- Adtoma Fusion -->
+        <script src="http://fusion.adtoma.com/spl/html5clickcount.js"></script>
 		<% } %>
 
     </head>
@@ -38,7 +43,16 @@
             var landingPageTarget = dhtml.getVar('landingPageTarget', '_blank');
             banner.onclick = function() {
                window.open(clickTag,landingPageTarget);
-            }	
+            }   
+        </script>
+        <% } else if (network == 'adtomafusion') { %>
+        <!-- Adtoma Fusion -->
+        <script>
+            var banner = document.getElementById('banner');
+                
+            banner.onclick = function() {
+                window.open(clickTag,"_blank");
+            }   
         </script>
         <% } %>
 	</body>

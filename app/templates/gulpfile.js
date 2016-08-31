@@ -1,5 +1,9 @@
 // generated on <%= date %> using <%= pkg %> <%= version %>
 
+// {date} {size}
+var zipNamepattern = '{size}';
+
+
 var del = require('del'),
   es = require('event-stream'),
   gulp = require('gulp'),
@@ -103,9 +107,10 @@ gulp.task('images', function() {
 });
 
 <% if (includeSass) { %>
+
 var compileSass = function(path) {
   return gulp.src(path)
-    .pipe($.plumber())
+    .pipe($.plumber({errorHandler: $.notify.onError("SASS error: <%= error.message %>")}))
     .pipe($.sourcemaps.init())
     .pipe($.sass.sync({
       outputStyle: 'expanded',
@@ -117,8 +122,13 @@ var compileSass = function(path) {
       .pipe(gulp.dest(function(file) {
       return file.base;
     }))
+    .pipe($.notify({
+      title: 'Compiled SASS',
+      message: path
+    }));
       // .pipe(reload({stream: true}));
 }
+
 <% } %>
   
 gulp.task('styles', ['sizes'], function(callback) {
@@ -216,7 +226,9 @@ gulp.task('dist', ['images', 'html', 'extras'], function() {
   var streams = [];
   for (var i = 0; i < sizes.length; i++) {
     var pad = new Array(longestString - sizes[i].length + 1).join(' ');
-    var zipFile = sizes[i] + '.zip';
+    var date = new Date().toISOString().slice(0, 10);
+
+    var zipFile = zipNamepattern.replace('{size}', sizes[i]).replace('{date}', date) + '.zip';
     streams.push(gulp.src(distDir + '/' + sizes[i] + '/**/*')
       .pipe($.zip(zipFile))
       .pipe($.size({title : '💩  ' +  zipFile + pad}))

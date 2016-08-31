@@ -59,21 +59,6 @@ module.exports = generators.Base.extend({
 			}, 
 			{
 				type    : 'confirm',
-				name    : 'tinify',
-				message : 'Use Tinify?',
-				default : false,
-			},
-			{
-				type    : 'input',
-				name    : 'tinifyKey',
-				message : 'TinyPNG API-key',
-				store : true,
-				when    : function ( answers ) {
-		      return answers.tinify;
-		    }
-			}, 
-			{
-				type    : 'confirm',
 				name    : 'ftpUpload',
 				message : 'FTP upload?',
 				default : false 
@@ -142,11 +127,7 @@ module.exports = generators.Base.extend({
 					path 			: answers.ftpPath
 				};
 			}
-			if (answers.tinify) {
-				config.tinify = {
-					key	: answers.tinifyKey
-				};
-			}
+		
 			fs.writeFile('./config.json', JSON.stringify(config), function(err) {
 				if(err) {
 				    return console.log(err);

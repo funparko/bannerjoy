@@ -1,7 +1,7 @@
 <?php
 
 //define('PROJECT_NAME', '');
-//define('GROUP_NY_NAME', false);
+// define('GROUP_NY_NAME', true);
 
 if (!defined('PROJECT_NAME')) {
 	define('PROJECT_NAME', basename(dirname(__FILE__)));
@@ -42,13 +42,21 @@ if ($handle = opendir('.')) {
     	}
   		$banner->id = $folder;
   		$banner->src = $folder;
-  		$banner->name = !empty($data[2]) ? $data[2] : null;
+  		$banner->size = $banner->width .'x' . $banner->height;
+  		if (!empty($data[2])) {
+  			$banner->name = $data[2];
+  			$banner->title = $banner->width .'x' . $banner->height;
+  		} else {
+  			$banner->name = null;
+  		}
     	$banner->file_size = $file_size;
+    	$banner->is_responsive = !empty($data[2]) && strpos($data[2], 'responsive') !== false;
 
     	$banners[$entry] = $banner;
     	
     }
 	}
+
 
 	function cmp($a, $b) {
 	  if ($a->width == $b->width) {
@@ -181,14 +189,17 @@ if (isset($_GET['download'])) {
 			display: block;
 			margin:0 auto;
 		}
+		iframe.responsive {
+			max-width: 100%;
+		}
 		#banner-container {
 			position: relative;
 		}
 		#banner {
-			position: fixed;
+			/*position: fixed;
 			right:15px;
 			left: 16.66666667%;
-			/*width: 100%;*/
+			width: 100%;*/
 		}
 		.banner-holder {
 			background: #fff;
@@ -226,7 +237,15 @@ if (isset($_GET['download'])) {
 							<?php 
 							
 							foreach ($group['banners'] as $folder => $banner): ?>
-							  <a href="#<?php echo $banner->id ?>" class="banner-link list-group-item <?php echo $x==0 ? 'active' : '' ?>" data-width="<?php echo $banner->width ?>" data-id="<?php echo $banner->id ?>" data-height="<?php echo $banner->height ?>"><?php echo $banner->title ?> 
+							  <a href="#<?php echo $banner->id ?>" class="banner-link list-group-item <?php echo $x==0 ? 'active' : '' ?>" data-width="<?php echo $banner->width ?>" data-id="<?php echo $banner->id ?>" data-height="<?php echo $banner->height ?>">
+							  	<?php if (GROUP_NY_NAME): ?>
+							  	<?php echo $banner->size ?> 
+							  	<?php else: ?>
+							  	<?php echo $banner->title ?> 
+							  	<?php endif ?>
+							  	<?php if (!GROUP_NY_NAME && !empty($banner->name)): ?>
+							  		<small>(<?php echo $banner->name ?>)</small>
+							  	<?php endif ?>
 							  	<small class="pull-right text-muted"><?php echo $banner->file_size ?></small>
 							  </a>
 							<?php
@@ -246,13 +265,12 @@ if (isset($_GET['download'])) {
   					<div id="banner" class="clearfix clear banner-holder">
   						<?php reset($banners);
   						$banner = current($banners); ?>
-  						<h4><span class="label label-primary"><?php echo $banner->id ?></span></h4>
-	  					<iframe scrolling="no" width="<?php echo $banner->width ?>" height="<?php echo $banner->height ?>" frameborder="0" src="<?php echo $banner->src ?>"></iframe>
+  						<h4><a href="<?php echo $banner->src ?>" class="new-window" target="_blank"><span class="label label-primary"><?php echo $banner->id ?></span></a></h4>
+	  					<iframe scrolling="no" width="<?php echo $banner->width ?>" height="<?php echo $banner->height ?>" frameborder="0" src="<?php echo $banner->src ?>" class="<?php echo $banner->is_responsive ? 'responsive' : '' ?>"></iframe>
 	  					<hr>
 	  					<p class="pull-left">
-	  						<span class="description"><?php echo $banner->description ?></span> <small class="text-muted"><?php echo $banner->file_size ?></small>
+	  						<span class="description"><?php echo $banner->description ?></span> <small class="text-muted file-size"><?php echo $banner->file_size ?></small>
 	  					<br>
-	  					<!-- <b>Size:</b> <span class="size"><?php echo $banner->width . 'x'. $banner->height ?></span></p> -->
 	  					<p class="pull-right">
 	  						<?php if (ZIP): ?>
 	  						<a href="?download&amp;banner=<?php echo $folder ?>" class="download"><span class="glyphicon glyphicon-download-alt"></span> ZIP</a> | 
@@ -268,17 +286,46 @@ if (isset($_GET['download'])) {
  		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
  		<script>
  			var banners = <?php echo json_encode($banners) ?>;
+ 			var $bannerEl = $('#banner');
+
+ 			$(window).on('resize', function(e) {
+				$('iframe.responsive').each(function() {
+					console.log($(this).parent().width())
+					var w = $(this).attr('width'),
+							h = $(this).attr('height');
+					if ($(this).parent().width() < w) {
+						$(this).css('height', Math.round($(this).parent().width() / w * h));
+					}
+				});
+ 			})
+
  			var showBanner = function(id, $el) {
- 				var banner = banners[id];
+ 				var banner = banners[id],
+ 					w,h;
  				if (!banner) return;
 
  				$el.show();
-				$el.find('iframe')
+ 				$iframe = $el.find('iframe')
+				$iframe.removeAttr('style');
+				
+				if (banner.is_responsive) {
+					$iframe.addClass('responsive');
+				} else {
+					$iframe.removeClass('responsive');
+				}
+				$iframe
 					.attr('src', banner.src + '?r=' + Math.random())
 					.attr('width', banner.width)
 					.attr('height', banner.height);
-					// .animate({'height' : banner.height});
-				
+
+				if (banner.is_responsive) {
+					setTimeout(function() {
+						h = $el.width() > banner.width ? banner.height : Math.round($el.width() / banner.width * banner.height);
+						$iframe.css('height', h);
+					}, 100)
+				} 
+
+
 				$el.find('.size').text(banner.width + 'x' + banner.height);
 				$el.find('.description').text(banner.description);
 				$el.find('.new-window').attr('href', banner.src);
@@ -290,10 +337,10 @@ if (isset($_GET['download'])) {
  				if ($('.show-all-container').size() > 0) {
  					return;
  				}
- 				$banner.hide();
+ 				$bannerEl.hide();
  				for (var id in banners) {
 			    if (banners.hasOwnProperty(id)) {
-						var $el = $banner.clone().attr('id', '');
+						var $el = $bannerEl.clone().attr('id', '');
 						showBanner(id, $el)
 						$el.addClass('show-all-container').appendTo('#banner-container').show();
 			    };
@@ -302,20 +349,20 @@ if (isset($_GET['download'])) {
 			var currentID;
 
  			$(function() {
- 				$banner = $('#banner');
+ 				
  				
  				$('.banner-link').on('click', function(e) {
  					$('#banner-list .active').removeClass('active');
- 					$(this).addClass('active')
+ 					$(this).addClass('active');
  					
- 					var id = $(this).data('id')
+ 					var id = $(this).data('id');
  					if (id === 'all') {
  						showAll();
  					} else {
  						if ($('.show-all-container').size() > 0) {
 		 					$('.show-all-container').remove();
 		 				}
- 						showBanner(id, $banner);
+ 						showBanner(id, $bannerEl);
  					}
  				});
 
@@ -330,7 +377,7 @@ if (isset($_GET['download'])) {
  					if (hash === 'all') {
  						showAll();
  					} else {
-						showBanner(hash, $banner);
+						showBanner(hash, $bannerEl);
  					}
  					currentID = hash;
 
