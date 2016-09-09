@@ -39,7 +39,7 @@ module.exports = generators.Base.extend({
 				default: 'none',
 				store: true,
       		}
-		], function (answers) {
+		]).then(function (answers) {
 			this.width = parseInt(answers.width);
 			this.height = parseInt(answers.height);
 			this.size = answers.width + 'x' + answers.height;

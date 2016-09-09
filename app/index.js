@@ -22,9 +22,9 @@ module.exports = generators.Base.extend({
 	},
 
 
-  	prompting: function () {
+	prompting: function () {
 
-  		this.log(yosay('Oh Banner Joy! Please answer a few questions!'));
+		this.log(yosay('Oh Banner Joy! Please answer a few questions!'));
 
 		var done = this.async();
 		this.prompt([
@@ -101,7 +101,7 @@ module.exports = generators.Base.extend({
 		      return answers.ftpUpload;
 		    }
 			}
-		], function (answers) {
+		]).then(function (answers) {
 			// this.log(answers);
 
 			var features = answers.features;

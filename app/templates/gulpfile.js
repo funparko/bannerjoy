@@ -110,7 +110,7 @@ gulp.task('images', function() {
 
 var compileSass = function(path) {
   return gulp.src(path)
-    .pipe($.plumber({errorHandler: $.notify.onError("SASS error: <%= error.message %>")}))
+    .pipe($.plumber({errorHandler: $.notify.onError("SASS error: <" + "%= error.message %" + ">")}))
     .pipe($.sourcemaps.init())
     .pipe($.sass.sync({
       outputStyle: 'expanded',
