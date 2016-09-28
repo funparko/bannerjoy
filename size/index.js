@@ -70,11 +70,14 @@ module.exports = generators.Base.extend({
 			this.destinationPath(folderName + '/index.html'),
 			data
 		);
-		this.fs.copyTpl(
-			this.templatePath('manifest.json'),
-			this.destinationPath(folderName + '/manifest.json'),
-			data
-		);
+
+		if (data.network === 'adform') {
+			this.fs.copyTpl(
+				this.templatePath('manifest.json'),
+				this.destinationPath(folderName + '/manifest.json'),
+				data
+			);
+		}
 		this.fs.copyTpl(
 			this.templatePath('main.css'),
 			this.destinationPath(folderName+ '/styles/main.' + (data.includeSass ? 'scss' : 'css')),
