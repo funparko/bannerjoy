@@ -1,4 +1,4 @@
-var generators = require('yeoman-generator');
+var Generator = require('yeoman-generator');
 var mkdirp = require('mkdirp');
 var scrDir = 'src';
 var adNetworks = [
@@ -9,11 +9,12 @@ var adNetworks = [
 ];
 
 
-module.exports = generators.Base.extend({
-	constructor : function () {
-		generators.Base.apply(this, arguments);
- 	},
- 	prompting : function () {
+module.exports = class extends Generator {
+	constructor (args, opts) {
+		super(args, opts);
+ 	}
+
+ 	prompting () {
 		var done = this.async();
 			this.prompt([
 			{
@@ -48,10 +49,11 @@ module.exports = generators.Base.extend({
 
 			done();
 		}.bind(this));
-	},
-  	templates : function () {
+	}
 
-  		var data = {
+  templates () {
+
+		var data = {
 			name: this.name,
 			appName: this.config.get('name'),
 			includeSass: this.config.get('includeSass'),
@@ -63,7 +65,7 @@ module.exports = generators.Base.extend({
 		};
 
 		var name = this.name ? this.name.replace(/\s/, '_').toLowerCase() : '';
-		var folderName = scrDir + '/' + this.size + (name.length > 0 ? '_' + name : ''); 
+		var folderName = scrDir + '/' + this.size + (name.length > 0 ? '_' + name : '');
 
 		this.fs.copyTpl(
 			this.templatePath('index.html'),
@@ -88,8 +90,8 @@ module.exports = generators.Base.extend({
 			this.destinationPath(folderName + '/scripts/main.js'),
 			data
 		);
-		
+
 		mkdirp(folderName + '/images');
 
 	}
-});
+};

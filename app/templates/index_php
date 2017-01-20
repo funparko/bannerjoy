@@ -269,7 +269,11 @@ if (isset($_GET['download'])) {
 	  					<iframe scrolling="no" width="<?php echo $banner->width ?>" height="<?php echo $banner->height ?>" frameborder="0" src="<?php echo $banner->src ?>" class="<?php echo $banner->is_responsive ? 'responsive' : '' ?>"></iframe>
 	  					<hr>
 	  					<p class="pull-left">
-	  						<span class="description"><?php echo $banner->description ?></span> <small class="text-muted file-size"><?php echo $banner->file_size ?></small>
+	  						<?php if (!empty($banner->description)): ?>
+	  							<span class="description"><?php echo $banner->description ?></span>
+	  						<?php endif ?>
+
+							<small class="text-muted file-size"><?php echo $banner->file_size ?></small>
 	  					<br>
 	  					<p class="pull-right">
 	  						<?php if (ZIP): ?>

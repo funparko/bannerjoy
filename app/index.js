@@ -1,28 +1,29 @@
-var generators = require('yeoman-generator');
+var Generator = require('yeoman-generator');
 var fs = require('fs');
 var yosay = require('yosay');
 
-module.exports = generators.Base.extend({
-	constructor: function () {
-		generators.Base.apply(this, arguments);
+module.exports = class extends Generator {
+	constructor(args, opts) {
+    // Calling the super constructor is important so our generator is correctly set up
+    super(args, opts);
 
-		this.argument('name', { 
-			type: String, 
-			optional : true, 
+		this.argument('name', {
+			type: String,
+			optional : true,
 			required : false,
 			defaults : this.appname
 		});
 		// And you can then access it later on this way; e.g. CamelCased
 		// this.log(this.appname);
-  	},
+  }
 
-	
-	initializing: function () {
+
+	initializing () {
 		this.pkg = require('../package.json');
-	},
+	}
 
 
-	prompting: function () {
+	prompting () {
 
 		this.log(yosay('Oh Banner Joy! Please answer a few questions!'));
 
@@ -33,19 +34,19 @@ module.exports = generators.Base.extend({
 				name    : 'name',
 				message : 'Project name',
 				default : this.appname // Default to current folder name
-			}, 
+			},
 			{
 				type    : 'input',
 				name    : 'clickTag',
 				message : 'ClickTag',
 				store : true,
-				default : 'http://example.com' 
-			}, 
+				default : 'http://example.com'
+			},
 			{
 				type    : 'confirm',
 				name    : 'phpViewerFile',
 				message : 'Add a php viewerfile in dist?',
-				default : false 
+				default : false
 			},
 			{
 				type: 'checkbox',
@@ -56,12 +57,12 @@ module.exports = generators.Base.extend({
 					value: 'includeSass',
 					checked: true
 				}]
-			}, 
+			},
 			{
 				type    : 'confirm',
 				name    : 'ftpUpload',
 				message : 'FTP upload?',
-				default : false 
+				default : false
 			},
 			{
 				type    : 'input',
@@ -72,7 +73,7 @@ module.exports = generators.Base.extend({
 				when    : function ( answers ) {
 		      return answers.ftpUpload;
 		    }
-			}, 
+			},
 			{
 				type    : 'input',
 				name    : 'ftpUser',
@@ -82,7 +83,7 @@ module.exports = generators.Base.extend({
 				when    : function ( answers ) {
 		      return answers.ftpUpload;
 		    }
-			}, 
+			},
 			{
 				type    : 'input',
 				name    : 'ftpPath',
@@ -92,7 +93,7 @@ module.exports = generators.Base.extend({
 				when    : function ( answers ) {
 		      return answers.ftpUpload;
 		    }
-			}, 
+			},
 			{
 				type    : 'password',
 				name    : 'ftpPassword',
@@ -127,12 +128,12 @@ module.exports = generators.Base.extend({
 					path 			: answers.ftpPath
 				};
 			}
-		
+
 			fs.writeFile('./config.json', JSON.stringify(config), function(err) {
 				if(err) {
 				    return console.log(err);
 				}
-			}); 
+			});
 			// this.config.set('includeModernizr', this.includeModernizr)
 
 			this.config.save();
@@ -179,4 +180,4 @@ module.exports = generators.Base.extend({
 			done();
 		}.bind(this));
 	}
-});
+};
